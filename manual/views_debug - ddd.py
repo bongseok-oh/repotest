@@ -1,3 +1,27 @@
+from django.core.urlresolvers import reverse_lazy
+from django.db.models import Q
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DeleteView, FormView, ListView, UpdateView
+
+from platform import system
+
+from konlpy.tag import Mecab # 형태소 분석을 위한 라이브러리 (Mecab 은 windows 환경에서 실행 불가)
+from konlpy.tag import Kkma # For windows os
+try:
+    import pdftotext
+except:
+    pass
+from pptx.dml.color import RGBColor # PPT 파일을 핸들링 하기위한 라이브러리
+from pptx import Presentation
+from bs4 import BeautifulSoup as bs
+from tika import parser
+import shutil
+import os 
+
+from .forms import *
+from .models import CompareWord, WordDict
 
 def index(request): 
     # 메인 리스트 뷰  (FBV)

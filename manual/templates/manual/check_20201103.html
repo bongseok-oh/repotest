@@ -1,0 +1,184 @@
+{% extends "manual/base.html" %}
+{% load staticfiles %}
+{% block header %}
+
+<style type="text/css">
+    body {
+        padding: 1em;
+    }
+    .ui.action.input input[type="file"] {
+        display: none;
+    }
+    </style>
+{% endblock %}
+{% block content %}
+<!-- Loading UI -->
+<div id="loading" style="position:absolute;left:0px; layer-background-color:white; height:100%; width:100%;"> 
+    <p align="center">
+        <div class="ui active inverted dimmer">
+            <div class="ui text loader">Loading...</div>
+        </div>
+    </p>
+</div>
+<div class="ui fluid container" style="margin-top:1em">
+    <div class="ui grid" id="form">
+        <div class="one wide column"></div>
+        <div class="fourteen wide column">
+            <div class="ui grid">
+                <h1 class="ui header">EtR(Easy to Read) Checking System</h1></div>
+                <div class="right floated column">
+                    <button class="ui button right floated blue submit" onclick="location.href='word/';" >Word List</button></div>
+                    <div class="ui form" style="margin-top:2em">   
+                <!-- Forms -->
+            <form action ="" method="post" enctype="multipart/form-data">{% csrf_token %}
+                <div class="eleven fields">
+                    <div class="two wide field" name="division">
+                        <label>Tester</label>
+                        <input type="text" name="tester" class="ui select" placeholder="Tester" >                       
+                    </div>
+                    <!-- Model Name field -->
+                    <div class="five wide field" name="test_file">
+                        <label>Original File</label>
+                    <div class="ui action input">
+                        <input type="text" placeholder="Select File" readonly>
+                        <input type="file" name = "test_file">
+                        <div class="ui icon button" onclick='document.all.test_file.click();'>
+                            <i class="attach icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Event field -->
+                <div class="four wide field" name="desc">
+                    <label>Description</label>
+                    <input type="text" name="desc" class="ui select" placeholder="Description">
+                </div>
+                
+                <!-- search button -->
+                <div class="one wide field" name="submit">
+                    <label>&nbsp;</label>
+                    <button class="ui button submit" >Input</button>
+                </div>
+            </form>
+            <!-- end form -->
+        </div>
+        <!-- <button class="ui button green submit show-all" onclick="location.href='word/';" >Word</button> -->
+        <div class="ui one column centered grid" id="form">
+            <div class="column">
+                <div class="ui fluid container" style="margin-top:2em" >   
+                    <!-- page nation -->
+                    <table class="ui very basic collapsing celled table">
+                        <thead>
+                            <tr>
+                                <th style="width:3%; text-align:center">ID</th>
+                                <th style="width:5%; text-align:center">Tester</th>
+                                <th style="width:15%; text-align:center">Original File</th>
+                                <th style="width:100px; text-align:center">Compare</th>
+                                <th style="width:15%; text-align:center">Result File</th>
+                                <th style="width:250px;text-align:center">Result</th>
+                                <th style="text-align:center">Desciption</th>
+                                <th style="width:150px; text-align:center">Dates</th>
+                            </tr>   
+                        </thead>
+                        <tbody>
+                            {% load manual_extras %}
+                            {% load el_pagination_tags %}
+                            {% paginate 10 object_list %}
+
+                            <!-- table tr -->
+                            {% for item in object_list %}
+                            <tr>
+                                <!-- id field -->
+                                <td style="text-align:center">{{ item.id }}</td> 
+                                
+                                <!-- tester field -->
+                                <td style="text-align:center">{{ item.tester }}</td>
+
+                                <!-- origin_file  field -->
+                                {% if not item.origin_file %}
+                                    <td style="text-align:center"></td>
+                                {% else %}
+                                    <td style="text-align:center">
+                                        <a href="{{item.origin_file.url}}" target="_blank">{% split item.origin_file.name "/" -1 as name %}{{ name }}</a>
+                                    </td>
+                                {% endif %}
+                                
+                                <!-- compare field -->
+                                {% if not item.result %}
+                                    <td style="text-align:center">
+                                        <!-- Convert button-->
+                                        <button class="ui button green submit show-all" onclick="location.href='{{ item.id }}';" >Analysis</button>
+                                    </td>
+                                {% else %}
+                                    <td style="text-align:center">
+                                        <!-- Convert button-->
+                                        <button class="ui button submit show-all" onclick="location.href='{{ item.id }}';">Analysis</button>
+                                    </td>
+                                {% endif %}
+
+                                <!-- result file field -->
+                                {% split item.origin_file.name "." -1 as file_extention %}
+                                {% if file_extention == 'pdf' %}
+                                    {% if not item.result %}
+                                        <td style="text-align:center"></td>
+                                    {% else %}
+                                        <td style="text-align:center">PDF is not supported.</td>
+                                    {% endif %}
+                                {% elif not item.result_file %}
+                                    <td style="text-align:center"></td>
+                                {% else %}
+                                    <td style="text-align:center"> 
+                                        <a href="{{item.result_file.url}}" target="_blank">{% split item.result_file.name "/" -1 as name %}{{ name }}</a>
+                                    </td>
+                                {% endif %}
+
+                                <!-- result field -->
+                                <td style="width:30%;">{{ item.result|safe}}</td>
+
+                                <!-- Description field -->
+                                <td style="text-align:center">{{ item.desc }}</td>
+
+                                <!-- date field -->
+                                <td style="text-align:center">{{ item.date|date:"y-m-j H:i" }}</td>
+                            </tr>                             
+                            <!-- emtpy case -->
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="negative"><center>No Item </center></td>
+                            </tr>
+                            {% endfor %}
+                <!--        {% get_pages %}     -->
+                        </tbody>
+                    </table>
+                    </br>
+                <!--   <button class="ui button left floated blue submit" onclick="location.href = '?page=1'" >처음</button>
+                       <div style="text-align:center;">{{ pages.previous }}{{ pages.next }}</div>   -->   
+                    <div style="text-align:center;">{% show_pages %}</div>                  
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("input:text").click(function() {
+        $(this).parent().find("input:file").click();
+        });
+        
+    $('input:file', '.ui.action.input')
+        .on('change', function(e) {
+            var name = e.target.files[0].name;
+            $('input:text', $(e.target).parent()).val(name);
+        });
+</script>
+<script>
+    $(document).ready(function() 
+    {
+        $("#loading").hide();
+    });
+    $(".show-all").click(function()
+    {
+        $("#loading").show();
+    });
+</script>
+{% endblock %} 
+

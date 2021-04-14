@@ -1,5 +1,9 @@
 깃 교육 테스트용
 
+<<<<<<< HEAD
 테스트
 
 master branch
+=======
+테스트 (david branch 플러스)
+>>>>>>> david
